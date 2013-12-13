@@ -6,7 +6,7 @@
 
 // This software is licensed under the terms of GNU GPL v.3 and
 // is provided without warranties of any kind!
-// Dimitar D. Mitov, 2013, ddmitov (dot) yahoo (dot) com
+// Dimitar D. Mitov, 2013, ddmitov (at) yahoo (dot) com
 
 // REFERENCES:
 // https://gitorious.org/qt-examples/qt-examples/source/sitespecificbrowser
@@ -30,12 +30,7 @@
 #include <QWebFrame>
 #include "htmlmsg.h"
 
-// Defaults:
-//QString input = "msg.htm";
-//int windowWidth = 400;
-//int windowHeigth = 200;
-//int timeoutSeconds = 10;
-
+// Initialization of global variables for settings:
 QString input;
 int windowWidth;
 int windowHeigth;
@@ -44,10 +39,24 @@ int timeoutSeconds;
 int main ( int argc, char **argv )
 {
     QApplication app ( argc, argv );
+
     input = QString ( argv [1] );
     windowWidth = QString ( argv [2] ).toInt();
     windowHeigth = QString ( argv [3] ).toInt();
     timeoutSeconds = QString ( argv [4] ).toInt();
+
+    if ( input.length() < 1 ) {
+        input = "htmlmsg.htm";
+    }
+    if ( windowWidth < 50 ) {
+        windowWidth = 400;
+    }
+    if ( windowHeigth < 50 ) {
+        windowHeigth = 200;
+    }
+    if ( timeoutSeconds < 3 ){
+        timeoutSeconds = 0;
+    }
 
     QTextCodec::setCodecForCStrings ( QTextCodec::codecForName ( "UTF8" ) );
     QWebSettings::globalSettings() -> setDefaultTextEncoding ( QString ( "utf-8" ) );

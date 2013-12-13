@@ -1,3 +1,3 @@
 #! /bin/sh
 
-./htmlmsg msg.htm 400 200 0
+./htmlmsg htmlmsg.htm 400 200 0
