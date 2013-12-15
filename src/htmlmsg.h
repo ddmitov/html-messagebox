@@ -27,9 +27,16 @@ public slots:
 
     void closeAppSlot()
     {
-        QFile::remove ( QDir::tempPath() + "/output.htm" );
         qApp->exit();
     };
+
+    void pageLoaded ( bool ok )
+    {
+        if ( ok )
+        {
+            setWindowTitle ( TopLevel::title() );
+        }
+    }
 
 public:
     TopLevel();

@@ -1,7 +1,7 @@
 
-HTML MessageBox, v.0.1
+HTML Message Box, v.0.1
 
-HTML MessageBox is a small Qt4/5 program, that has only one purpose in life -  
+HTML Message Box is a small Qt4/5 program, that has only one purpose in life -  
 to show nice HTML messageboxes from command line scripts.  
   
 This software is licensed under the terms of GNU GPL v.3 and  

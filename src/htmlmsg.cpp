@@ -1,7 +1,7 @@
 
-// HTML MessageBox, v.0.1
+// HTML Message Box, v.0.1
 
-// HTML MessageBox is a small Qt4/5 program, that has only one purpose in life -
+// HTML Message Box is a small Qt4/5 program, that has only one purpose in life -
 // to show nice HTML messageboxes from command line scripts.
 
 // This software is licensed under the terms of GNU GPL v.3 and
@@ -11,6 +11,7 @@
 // REFERENCES:
 // https://gitorious.org/qt-examples/qt-examples/source/sitespecificbrowser
 // http://qt-project.org/doc/qt-5.0/qtwebkit/qwebsettings.html
+// http://qt-project.org/faq/answer/is_there_a_way_i_can_get_rid_of_the_icon_in_the_mdi_child_windows_titlebar
 // http://qt-project.org/forums/viewthread/23835
 // http://qt-project.org/forums/viewthread/5318
 // http://qt-project.org/forums/viewthread/8876
@@ -58,7 +59,11 @@ int main ( int argc, char **argv )
         timeoutSeconds = 0;
     }
 
+#if QT_VERSION >= 0x050000
+    QTextCodec::setCodecForLocale ( QTextCodec::codecForName ( "UTF8" ) );
+#else
     QTextCodec::setCodecForCStrings ( QTextCodec::codecForName ( "UTF8" ) );
+#endif
     QWebSettings::globalSettings() -> setDefaultTextEncoding ( QString ( "utf-8" ) );
     QWebSettings::globalSettings() -> setAttribute ( QWebSettings::PluginsEnabled, false );
     QWebSettings::globalSettings() -> setAttribute ( QWebSettings::JavascriptEnabled, true );
@@ -96,22 +101,35 @@ TopLevel::TopLevel()
     main_page -> mainFrame() -> setScrollBarPolicy ( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
     main_page -> mainFrame() -> setScrollBarPolicy ( Qt::Vertical, Qt::ScrollBarAlwaysOff );
 
-    QShortcut * closeAppShortcut = new QShortcut ( Qt::Key_Escape, this );
-    QObject::connect ( closeAppShortcut, SIGNAL ( activated() ), this, SLOT ( closeAppSlot() ) );
+    if ( input != "stdin" ) {
+        QObject::connect ( main_page, SIGNAL ( loadFinished (bool) ),
+                           this, SLOT ( pageLoaded (bool) ) );
+    }
+
+    QShortcut * escapeShortcut = new QShortcut ( Qt::Key_Escape, this );
+    QObject::connect ( escapeShortcut, SIGNAL ( activated() ), this, SLOT ( closeAppSlot() ) );
+
+    QShortcut * enterShortcut = new QShortcut ( Qt::Key_Return, this );
+    QObject::connect ( enterShortcut, SIGNAL ( activated() ), this, SLOT ( closeAppSlot() ) );
 
     setFixedSize ( windowWidth, windowHeigth );
     setWindowFlags ( Qt::FramelessWindowHint );
     setContextMenuPolicy ( Qt::NoContextMenu );
 
-    if ( input != "stdin" ) {
-        QUrl startUrl = "file://" + QApplication::applicationDirPath() + QDir::separator () + input;;
-        setUrl ( startUrl );
-        setFocus();
+    if ( input == "stdin" ) {
+        setWindowTitle ( "Message" );
     }
 
-    if ( timeoutSeconds > 0 ) {
-        int timeoutMilliseconds = timeoutSeconds * 1000;
-        QTimer::singleShot ( timeoutMilliseconds, this, SLOT ( closeAppSlot() ) );
+    QPixmap pix ( 16, 16 );
+    pix.fill ( Qt::transparent );
+    setWindowIcon ( QIcon ( pix ) );
+
+    if ( input != "stdin" ) {
+        QUrl startUrl = "file://" +
+                QApplication::applicationDirPath() +
+                QDir::separator () + input;
+        setUrl ( startUrl );
+        setFocus();
     }
 
     if ( input == "stdin" ) {
@@ -119,6 +137,12 @@ TopLevel::TopLevel()
         QString input = qtin.readAll();
         setHtml ( input );
     }
+
+    if ( timeoutSeconds > 0 ) {
+        int timeoutMilliseconds = timeoutSeconds * 1000;
+        QTimer::singleShot ( timeoutMilliseconds, this, SLOT ( closeAppSlot() ) );
+    }
+
 }
 
 bool Page::acceptNavigationRequest( QWebFrame *frame,
