@@ -41,8 +41,10 @@ public slots:
 public:
     TopLevel();
     QTimer* timer;
+
 private:
     Page *main_page;
+
 };
 
 #endif // HTMLMSG_H

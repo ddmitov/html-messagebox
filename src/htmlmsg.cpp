@@ -29,6 +29,9 @@
 #include <QtGui>
 #include <QtNetwork/QNetworkRequest>
 #include <QWebFrame>
+#include <QDesktopWidget>
+#include <QShortcut>
+
 #include "htmlmsg.h"
 
 // Initialization of global variables for settings:
