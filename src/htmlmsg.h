@@ -14,9 +14,9 @@ public:
     Page();
 
 protected:
-    bool acceptNavigationRequest( QWebFrame *frame,
+    bool acceptNavigationRequest (QWebFrame *frame,
                                   const QNetworkRequest &request,
-                                  QWebPage::NavigationType type );
+                                  QWebPage::NavigationType type);
 };
 
 class TopLevel : public QWebView
@@ -27,20 +27,19 @@ public slots:
 
     void closeAppSlot()
     {
-        qApp->exit();
-    };
+        qApp -> exit();
+    }
 
-    void pageLoaded ( bool ok )
+    void pageLoaded (bool ok)
     {
-        if ( ok )
-        {
-            setWindowTitle ( TopLevel::title() );
+        if (ok) {
+            setWindowTitle (TopLevel::title());
         }
     }
 
 public:
     TopLevel();
-    QTimer* timer;
+    QTimer *timer;
 
 private:
     Page *main_page;

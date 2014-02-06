@@ -40,51 +40,51 @@ int windowWidth;
 int windowHeigth;
 int timeoutSeconds;
 
-int main ( int argc, char **argv )
+int main (int argc, char **argv)
 {
-    QApplication app ( argc, argv );
+    QApplication app (argc, argv);
 
-    input = QString ( argv [1] );
-    windowWidth = QString ( argv [2] ).toInt();
-    windowHeigth = QString ( argv [3] ).toInt();
-    timeoutSeconds = QString ( argv [4] ).toInt();
+    input = QString (argv[1]);
+    windowWidth = QString (argv[2]).toInt();
+    windowHeigth = QString (argv[3]).toInt();
+    timeoutSeconds = QString (argv[4]).toInt();
 
-    if ( input.length() < 1 ) {
+    if (input.length() < 1) {
         input = "htmlmsg.htm";
     }
-    if ( windowWidth < 50 ) {
+    if (windowWidth < 50) {
         windowWidth = 400;
     }
-    if ( windowHeigth < 50 ) {
+    if (windowHeigth < 50) {
         windowHeigth = 200;
     }
-    if ( timeoutSeconds < 3 ){
+    if (timeoutSeconds < 3){
         timeoutSeconds = 0;
     }
 
 #if QT_VERSION >= 0x050000
-    QTextCodec::setCodecForLocale ( QTextCodec::codecForName ( "UTF8" ) );
+    QTextCodec::setCodecForLocale (QTextCodec::codecForName ("UTF8"));
 #else
-    QTextCodec::setCodecForCStrings ( QTextCodec::codecForName ( "UTF8" ) );
+    QTextCodec::setCodecForCStrings (QTextCodec::codecForName ("UTF8"));
 #endif
-    QWebSettings::globalSettings() -> setDefaultTextEncoding ( QString ( "utf-8" ) );
-    QWebSettings::globalSettings() -> setAttribute ( QWebSettings::PluginsEnabled, false );
-    QWebSettings::globalSettings() -> setAttribute ( QWebSettings::JavascriptEnabled, true );
-    QWebSettings::globalSettings() -> setAttribute ( QWebSettings::SpatialNavigationEnabled, false );
-    QWebSettings::globalSettings() -> setAttribute ( QWebSettings::LinksIncludedInFocusChain, false );
-    QWebSettings::globalSettings() -> setAttribute ( QWebSettings::PrivateBrowsingEnabled, true );
-    QWebSettings::globalSettings() -> setAttribute ( QWebSettings::AutoLoadImages, true );
-    QWebSettings::setMaximumPagesInCache ( 0 );
-    QWebSettings::setObjectCacheCapacities ( 0, 0, 0 );
-    QWebSettings::setMaximumPagesInCache ( 0 );
+    QWebSettings::globalSettings() -> setDefaultTextEncoding (QString ("utf-8"));
+    QWebSettings::globalSettings() -> setAttribute (QWebSettings::PluginsEnabled, false);
+    QWebSettings::globalSettings() -> setAttribute (QWebSettings::JavascriptEnabled, true);
+    QWebSettings::globalSettings() -> setAttribute (QWebSettings::SpatialNavigationEnabled, false);
+    QWebSettings::globalSettings() -> setAttribute (QWebSettings::LinksIncludedInFocusChain, false);
+    QWebSettings::globalSettings() -> setAttribute (QWebSettings::PrivateBrowsingEnabled, true);
+    QWebSettings::globalSettings() -> setAttribute (QWebSettings::AutoLoadImages, true);
+    QWebSettings::setMaximumPagesInCache (0);
+    QWebSettings::setObjectCacheCapacities (0, 0, 0);
+    QWebSettings::setMaximumPagesInCache (0);
     QWebSettings::clearMemoryCaches();
 
     TopLevel toplevel;
 
     QRect screenRect = QDesktopWidget().screen()->rect();
-    toplevel.move ( QPoint(screenRect.width()/2 - toplevel.width()/2,
-                        screenRect.height()/2 - toplevel.height()/2 ) );
-    toplevel.setWindowFlags ( Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint );
+    toplevel.move (QPoint(screenRect.width()/2 - toplevel.width()/2,
+                          screenRect.height()/2 - toplevel.height()/2));
+    toplevel.setWindowFlags (Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
 
     toplevel.show();
     app.exec();
@@ -100,69 +100,69 @@ TopLevel::TopLevel()
 {
     main_page = new Page();
     setPage ( main_page );
-    main_page -> setLinkDelegationPolicy ( QWebPage::DelegateAllLinks );
-    main_page -> mainFrame() -> setScrollBarPolicy ( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
-    main_page -> mainFrame() -> setScrollBarPolicy ( Qt::Vertical, Qt::ScrollBarAlwaysOff );
+    main_page -> setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
+    main_page -> mainFrame() -> setScrollBarPolicy (Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+    main_page -> mainFrame() -> setScrollBarPolicy (Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    if ( input != "stdin" ) {
-        QObject::connect ( main_page, SIGNAL ( loadFinished (bool) ),
-                           this, SLOT ( pageLoaded (bool) ) );
+    if (input != "stdin") {
+        QObject::connect (main_page, SIGNAL (loadFinished(bool)),
+                          this, SLOT (pageLoaded(bool)));
     }
 
-    QShortcut * escapeShortcut = new QShortcut ( Qt::Key_Escape, this );
-    QObject::connect ( escapeShortcut, SIGNAL ( activated() ), this, SLOT ( closeAppSlot() ) );
+    QShortcut *escapeShortcut = new QShortcut (Qt::Key_Escape, this);
+    QObject::connect ( escapeShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
 
-    QShortcut * enterShortcut = new QShortcut ( Qt::Key_Return, this );
-    QObject::connect ( enterShortcut, SIGNAL ( activated() ), this, SLOT ( closeAppSlot() ) );
+    QShortcut *enterShortcut = new QShortcut (Qt::Key_Return, this);
+    QObject::connect ( enterShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
 
-    setFixedSize ( windowWidth, windowHeigth );
-    setWindowFlags ( Qt::FramelessWindowHint );
-    setContextMenuPolicy ( Qt::NoContextMenu );
+    setFixedSize (windowWidth, windowHeigth);
+    setWindowFlags (Qt::FramelessWindowHint);
+    setContextMenuPolicy (Qt::NoContextMenu);
 
-    if ( input == "stdin" ) {
-        setWindowTitle ( "Message" );
+    if (input == "stdin") {
+        setWindowTitle ("Message");
     }
 
-    QPixmap pix ( 16, 16 );
-    pix.fill ( Qt::transparent );
-    setWindowIcon ( QIcon ( pix ) );
+    QPixmap pix (16, 16);
+    pix.fill (Qt::transparent);
+    setWindowIcon (QIcon (pix));
 
-    if ( input != "stdin" ) {
+    if (input != "stdin") {
         QUrl startUrl = "file://" +
                 QApplication::applicationDirPath() +
-                QDir::separator () + input;
-        setUrl ( startUrl );
+                QDir::separator() + input;
+        setUrl (startUrl);
         setFocus();
     }
 
-    if ( input == "stdin" ) {
-        QTextStream qtin ( stdin );
+    if (input == "stdin") {
+        QTextStream qtin (stdin);
         QString input = qtin.readAll();
-        setHtml ( input );
+        setHtml (input);
     }
 
-    if ( timeoutSeconds > 0 ) {
+    if (timeoutSeconds > 0) {
         int timeoutMilliseconds = timeoutSeconds * 1000;
-        QTimer::singleShot ( timeoutMilliseconds, this, SLOT ( closeAppSlot() ) );
+        QTimer::singleShot (timeoutMilliseconds, this, SLOT (closeAppSlot()));
     }
 
 }
 
-bool Page::acceptNavigationRequest( QWebFrame *frame,
-                                    const QNetworkRequest &request,
-                                    QWebPage::NavigationType type )
+bool Page::acceptNavigationRequest(QWebFrame *frame,
+                                   const QNetworkRequest &request,
+                                   QWebPage::NavigationType type)
 {
-    QUrl CloseBase ( QUrl ( "local://close/" ) );
-    if ( type == QWebPage::NavigationTypeLinkClicked ) {
-        if ( CloseBase.isParentOf ( request.url() ) ) {
+    QUrl CloseBase (QUrl ("local://close/" ));
+    if (type == QWebPage::NavigationTypeLinkClicked) {
+        if ( CloseBase.isParentOf (request.url())) {
             qApp->exit();
         }
     }
-    if ( type == QWebPage::NavigationTypeLinkClicked ) {
-        if ( !CloseBase.isParentOf ( request.url() ) ) {
-            QDesktopServices::openUrl ( request.url() );
+    if (type == QWebPage::NavigationTypeLinkClicked) {
+        if ( !CloseBase.isParentOf (request.url())) {
+            QDesktopServices::openUrl (request.url());
             return false;
         }
     }
-    return QWebPage::acceptNavigationRequest ( frame, request, type );
+    return QWebPage::acceptNavigationRequest (frame, request, type);
 }
