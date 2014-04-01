@@ -59,10 +59,23 @@ int main (int argc, char **argv)
 Settings::Settings()
     : QObject (0)
 {
-    input = (QCoreApplication::arguments().at(1));
-    windowWidth = (QCoreApplication::arguments().at(2)).toInt();
-    windowHeigth = (QCoreApplication::arguments().at(3)).toInt();
-    timeoutSeconds = (QCoreApplication::arguments().at(4)).toInt();
+
+    QStringList arguments = QCoreApplication::arguments();
+    foreach (QString argument, arguments){
+        if (argument.contains ("--input") or argument.contains ("-i")) {
+            input = argument.section ("=", 1, 1);
+        }
+        if (argument.contains ("--width") or argument.contains ("-w")) {
+            windowWidth = argument.section ("=", 1, 1).toInt();
+        }
+        if (argument.contains ("--heigth") or argument.contains ("-h")) {
+            windowHeigth = argument.section ("=", 1, 1).toInt();
+        }
+        if (argument.contains ("--timeout") or argument.contains ("-t")) {
+            timeoutSeconds = argument.section ("=", 1, 1).toInt();
+        }
+    }
+
 }
 
 Page::Page()
@@ -74,6 +87,7 @@ Page::Page()
 TopLevel::TopLevel()
     : QWebView (0)
 {
+
     Settings settings;
 
     if (settings.input.length() < 1) {

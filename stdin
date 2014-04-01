@@ -21,7 +21,7 @@ print <<HTML;
 		<td style='vertical-align:middle'>
 			<p align='center'><font size='4' face='SansSerif'>
 			Input from STDIN <br>
-			<a href='local://close/now'>Click here to close, press Esc or Enter </a>
+			<a href='close://now'>Click here to close, press Esc or Enter </a>
 			</font></p>
 		</td>
 	</tr>
