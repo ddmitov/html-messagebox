@@ -6,61 +6,27 @@
 
 // This software is licensed under the terms of GNU GPL v.3 and
 // is provided without warranties of any kind!
-// Dimitar D. Mitov, 2013, ddmitov (at) yahoo (dot) com
+// Dimitar D. Mitov, 2013 - 2014, ddmitov (at) yahoo (dot) com
 
-// REFERENCES:
-// https://gitorious.org/qt-examples/qt-examples/source/sitespecificbrowser
-// http://qt-project.org/doc/qt-5.0/qtwebkit/qwebsettings.html
-// http://qt-project.org/faq/answer/is_there_a_way_i_can_get_rid_of_the_icon_in_the_mdi_child_windows_titlebar
-// http://qt-project.org/forums/viewthread/23835
-// http://qt-project.org/forums/viewthread/5318
-// http://qt-project.org/forums/viewthread/8876
-// http://www.qtcentre.org/threads/23094-cancle-right-click-context-menu-in-qtwebkit
-// http://www.qtcentre.org/threads/46016-Place-QMessageBox-on-middle-of-screen
-// http://www.qtcentre.org/threads/50214-stdin-reading
-// http://developer.nokia.com/Community/Discussion/showthread.php/212357-How-to-disable-the-scrollbar-of-QWebView
-// http://stackoverflow.com/questions/9685615/qt-and-linux-pipes
-// http://stackoverflow.com/questions/14987007/what-is-the-expected-encoding-for-qwebviewsethtml
-// http://stackoverflow.com/questions/10666998/qwebkit-display-local-webpage
-// http://stackoverflow.com/questions/8026101/correct-way-to-quit-a-qt-program
-// http://stackoverflow.com/questions/6955281/how-to-stop-qhttp-qtwebkit-from-caching-pages
-// http://www.codeprogress.com/cpp/libraries/qt/qMessageBoxAutoClose.php
-
+#include <qglobal.h>
+#if QT_VERSION >= 0x050000
+// Qt5 code:
+#include <QtWidgets>
+#else
+// Qt4 code:
 #include <QtGui>
-#include <QtNetwork/QNetworkRequest>
+#include <QApplication>
+#endif
+
+#include <QWebPage>
+#include <QWebView>
 #include <QWebFrame>
-#include <QDesktopWidget>
-#include <QShortcut>
-
+#include <QtNetwork/QNetworkRequest>
 #include "htmlmsg.h"
-
-// Initialization of global variables for settings:
-QString input;
-int windowWidth;
-int windowHeigth;
-int timeoutSeconds;
 
 int main (int argc, char **argv)
 {
     QApplication app (argc, argv);
-
-    input = QString (argv[1]);
-    windowWidth = QString (argv[2]).toInt();
-    windowHeigth = QString (argv[3]).toInt();
-    timeoutSeconds = QString (argv[4]).toInt();
-
-    if (input.length() < 1) {
-        input = "htmlmsg.htm";
-    }
-    if (windowWidth < 50) {
-        windowWidth = 400;
-    }
-    if (windowHeigth < 50) {
-        windowHeigth = 200;
-    }
-    if (timeoutSeconds < 3){
-        timeoutSeconds = 0;
-    }
 
 #if QT_VERSION >= 0x050000
     QTextCodec::setCodecForLocale (QTextCodec::codecForName ("UTF8"));
@@ -88,23 +54,48 @@ int main (int argc, char **argv)
 
     toplevel.show();
     app.exec();
-};
+}
+
+Settings::Settings()
+    : QObject (0)
+{
+    input = (QCoreApplication::arguments().at(1));
+    windowWidth = (QCoreApplication::arguments().at(2)).toInt();
+    windowHeigth = (QCoreApplication::arguments().at(3)).toInt();
+    timeoutSeconds = (QCoreApplication::arguments().at(4)).toInt();
+}
 
 Page::Page()
-    : QWebPage(0)
+    : QWebPage (0)
 {
+
 }
 
 TopLevel::TopLevel()
-    : QWebView(0)
+    : QWebView (0)
 {
+    Settings settings;
+
+    if (settings.input.length() < 1) {
+        settings.input = "htmlmsg.htm";
+    }
+    if (settings.windowWidth < 50) {
+        settings.windowWidth = 400;
+    }
+    if (settings.windowHeigth < 50) {
+        settings.windowHeigth = 200;
+    }
+    if (settings.timeoutSeconds < 3){
+        settings.timeoutSeconds = 0;
+    }
+
     main_page = new Page();
     setPage ( main_page );
     main_page -> setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
     main_page -> mainFrame() -> setScrollBarPolicy (Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     main_page -> mainFrame() -> setScrollBarPolicy (Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    if (input != "stdin") {
+    if (settings.input != "stdin") {
         QObject::connect (main_page, SIGNAL (loadFinished(bool)),
                           this, SLOT (pageLoaded(bool)));
     }
@@ -115,11 +106,11 @@ TopLevel::TopLevel()
     QShortcut *enterShortcut = new QShortcut (Qt::Key_Return, this);
     QObject::connect ( enterShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
 
-    setFixedSize (windowWidth, windowHeigth);
+    setFixedSize (settings.windowWidth, settings.windowHeigth);
     setWindowFlags (Qt::FramelessWindowHint);
     setContextMenuPolicy (Qt::NoContextMenu);
 
-    if (input == "stdin") {
+    if (settings.input == "stdin") {
         setWindowTitle ("Message");
     }
 
@@ -127,42 +118,41 @@ TopLevel::TopLevel()
     pix.fill (Qt::transparent);
     setWindowIcon (QIcon (pix));
 
-    if (input != "stdin") {
+    if (settings.input != "stdin") {
         QUrl startUrl = "file://" +
                 QApplication::applicationDirPath() +
-                QDir::separator() + input;
+                QDir::separator() + settings.input;
         setUrl (startUrl);
         setFocus();
     }
 
-    if (input == "stdin") {
+    if (settings.input == "stdin") {
         QTextStream qtin (stdin);
         QString input = qtin.readAll();
         setHtml (input);
     }
 
-    if (timeoutSeconds > 0) {
-        int timeoutMilliseconds = timeoutSeconds * 1000;
+    if (settings.timeoutSeconds > 0) {
+        int timeoutMilliseconds = settings.timeoutSeconds * 1000;
         QTimer::singleShot (timeoutMilliseconds, this, SLOT (closeAppSlot()));
     }
 
 }
 
-bool Page::acceptNavigationRequest(QWebFrame *frame,
+bool Page::acceptNavigationRequest (QWebFrame *frame,
                                    const QNetworkRequest &request,
-                                   QWebPage::NavigationType type)
+                                   QWebPage::NavigationType navigationType)
 {
-    QUrl CloseBase (QUrl ("local://close/" ));
-    if (type == QWebPage::NavigationTypeLinkClicked) {
-        if ( CloseBase.isParentOf (request.url())) {
+
+    if (navigationType == QWebPage::NavigationTypeLinkClicked) {
+        if (request.url().scheme().contains ("close")) {
             qApp->exit();
-        }
-    }
-    if (type == QWebPage::NavigationTypeLinkClicked) {
-        if ( !CloseBase.isParentOf (request.url())) {
+        } else {
             QDesktopServices::openUrl (request.url());
             return false;
         }
     }
-    return QWebPage::acceptNavigationRequest (frame, request, type);
+
+    return QWebPage::acceptNavigationRequest (frame, request, navigationType);
+
 }

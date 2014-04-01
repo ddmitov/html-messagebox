@@ -6,17 +6,34 @@
 #include <QWebPage>
 #include <QWebView>
 
+class Settings : public QObject
+{
+    Q_OBJECT
+
+public:
+
+    Settings();
+
+    QString input;
+    int windowWidth;
+    int windowHeigth;
+    int timeoutSeconds;
+
+};
+
 class Page : public QWebPage
 {
     Q_OBJECT
 
 public:
+
     Page();
 
 protected:
+
     bool acceptNavigationRequest (QWebFrame *frame,
                                   const QNetworkRequest &request,
-                                  QWebPage::NavigationType type);
+                                  QWebPage::NavigationType navigationType);
 };
 
 class TopLevel : public QWebView
@@ -27,7 +44,7 @@ public slots:
 
     void closeAppSlot()
     {
-        qApp -> exit();
+        qApp->exit();
     }
 
     void pageLoaded (bool ok)
@@ -38,10 +55,13 @@ public slots:
     }
 
 public:
+
     TopLevel();
+
     QTimer *timer;
 
 private:
+
     Page *main_page;
 
 };
