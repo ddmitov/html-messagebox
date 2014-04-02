@@ -28,6 +28,25 @@ int main (int argc, char **argv)
 {
     QApplication app (argc, argv);
 
+    // Display command line help if the program is started without arguments:
+    QStringList arguments = QCoreApplication::arguments();
+    if (arguments.count() < 2) {
+        Settings settings;
+        settings.displayHelp();
+        return 1;
+        QApplication::exit();
+    }
+
+    // Display command line help if '--help' argument is used:
+    foreach (QString argument, arguments){
+        if (argument.contains ("--help")) {
+            Settings settings;
+            settings.displayHelp();
+            return 1;
+            QApplication::exit();
+        }
+    }
+
 #if QT_VERSION >= 0x050000
     QTextCodec::setCodecForLocale (QTextCodec::codecForName ("UTF8"));
 #else
@@ -60,6 +79,7 @@ Settings::Settings()
     : QObject (0)
 {
 
+    // Read command line arguments:
     QStringList arguments = QCoreApplication::arguments();
     foreach (QString argument, arguments){
         if (argument.contains ("--input") or argument.contains ("-i")) {
@@ -76,6 +96,20 @@ Settings::Settings()
         }
     }
 
+    // Default values if command line arguments have values bellow minimal:
+    if (input.length() < 1) {
+        input = "htmlmsg.htm";
+    }
+    if (windowWidth < 50) {
+        windowWidth = 400;
+    }
+    if (windowHeigth < 50) {
+        windowHeigth = 200;
+    }
+    if (timeoutSeconds < 3){
+        timeoutSeconds = 0;
+    }
+
 }
 
 Page::Page()
@@ -89,19 +123,6 @@ TopLevel::TopLevel()
 {
 
     Settings settings;
-
-    if (settings.input.length() < 1) {
-        settings.input = "htmlmsg.htm";
-    }
-    if (settings.windowWidth < 50) {
-        settings.windowWidth = 400;
-    }
-    if (settings.windowHeigth < 50) {
-        settings.windowHeigth = 200;
-    }
-    if (settings.timeoutSeconds < 3){
-        settings.timeoutSeconds = 0;
-    }
 
     main_page = new Page();
     setPage ( main_page );
