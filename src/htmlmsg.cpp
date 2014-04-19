@@ -15,9 +15,9 @@
 #else
 // Qt4 code:
 #include <QtGui>
-#include <QApplication>
 #endif
 
+#include <QApplication>
 #include <QWebPage>
 #include <QWebView>
 #include <QWebFrame>
@@ -52,13 +52,13 @@ int main (int argc, char **argv)
 #else
     QTextCodec::setCodecForCStrings (QTextCodec::codecForName ("UTF8"));
 #endif
-    QWebSettings::globalSettings() -> setDefaultTextEncoding (QString ("utf-8"));
-    QWebSettings::globalSettings() -> setAttribute (QWebSettings::PluginsEnabled, false);
-    QWebSettings::globalSettings() -> setAttribute (QWebSettings::JavascriptEnabled, true);
-    QWebSettings::globalSettings() -> setAttribute (QWebSettings::SpatialNavigationEnabled, false);
-    QWebSettings::globalSettings() -> setAttribute (QWebSettings::LinksIncludedInFocusChain, false);
-    QWebSettings::globalSettings() -> setAttribute (QWebSettings::PrivateBrowsingEnabled, true);
-    QWebSettings::globalSettings() -> setAttribute (QWebSettings::AutoLoadImages, true);
+    QWebSettings::globalSettings()->setDefaultTextEncoding (QString ("utf-8"));
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::PluginsEnabled, false);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::JavascriptEnabled, true);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::SpatialNavigationEnabled, false);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::LinksIncludedInFocusChain, false);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::PrivateBrowsingEnabled, true);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::AutoLoadImages, true);
     QWebSettings::setMaximumPagesInCache (0);
     QWebSettings::setObjectCacheCapacities (0, 0, 0);
     QWebSettings::setMaximumPagesInCache (0);
@@ -124,25 +124,24 @@ TopLevel::TopLevel()
 
     Settings settings;
 
-    main_page = new Page();
-    setPage ( main_page );
-    main_page -> setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
-    main_page -> mainFrame() -> setScrollBarPolicy (Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-    main_page -> mainFrame() -> setScrollBarPolicy (Qt::Vertical, Qt::ScrollBarAlwaysOff);
+    mainPage = new Page();
+    setPage (mainPage);
+    mainPage->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
+    mainPage->mainFrame()->setScrollBarPolicy (Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+    mainPage->mainFrame()->setScrollBarPolicy (Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
     if (settings.input != "stdin") {
-        QObject::connect (main_page, SIGNAL (loadFinished(bool)),
+        QObject::connect (mainPage, SIGNAL (loadFinished(bool)),
                           this, SLOT (pageLoaded(bool)));
     }
 
     QShortcut *escapeShortcut = new QShortcut (Qt::Key_Escape, this);
-    QObject::connect ( escapeShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
+    QObject::connect (escapeShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
 
     QShortcut *enterShortcut = new QShortcut (Qt::Key_Return, this);
-    QObject::connect ( enterShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
+    QObject::connect (enterShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
 
     setFixedSize (settings.windowWidth, settings.windowHeigth);
-    setWindowFlags (Qt::FramelessWindowHint);
     setContextMenuPolicy (Qt::NoContextMenu);
 
     if (settings.input == "stdin") {
@@ -155,8 +154,8 @@ TopLevel::TopLevel()
 
     if (settings.input != "stdin") {
         QUrl startUrl = "file://" +
-                QApplication::applicationDirPath() +
-                QDir::separator() + settings.input;
+                QApplication::applicationDirPath()+
+                QDir::separator()+settings.input;
         setUrl (startUrl);
         setFocus();
     }

@@ -8,9 +8,9 @@
 #else
 // Qt4 code:
 #include <QtGui>
-#include <QApplication>
 #endif
 
+#include <QApplication>
 #include <QWebPage>
 #include <QWebView>
 #include <iostream> // for std::cout
@@ -105,7 +105,7 @@ public:
 
 private:
 
-    Page *main_page;
+    Page *mainPage;
 
 };
 
