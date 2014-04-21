@@ -52,25 +52,8 @@ int main (int argc, char **argv)
 #else
     QTextCodec::setCodecForCStrings (QTextCodec::codecForName ("UTF8"));
 #endif
-    QWebSettings::globalSettings()->setDefaultTextEncoding (QString ("utf-8"));
-    QWebSettings::globalSettings()->setAttribute (QWebSettings::PluginsEnabled, false);
-    QWebSettings::globalSettings()->setAttribute (QWebSettings::JavascriptEnabled, true);
-    QWebSettings::globalSettings()->setAttribute (QWebSettings::SpatialNavigationEnabled, false);
-    QWebSettings::globalSettings()->setAttribute (QWebSettings::LinksIncludedInFocusChain, false);
-    QWebSettings::globalSettings()->setAttribute (QWebSettings::PrivateBrowsingEnabled, true);
-    QWebSettings::globalSettings()->setAttribute (QWebSettings::AutoLoadImages, true);
-    QWebSettings::setMaximumPagesInCache (0);
-    QWebSettings::setObjectCacheCapacities (0, 0, 0);
-    QWebSettings::setMaximumPagesInCache (0);
-    QWebSettings::clearMemoryCaches();
 
     TopLevel toplevel;
-
-    QRect screenRect = QDesktopWidget().screen()->rect();
-    toplevel.move (QPoint(screenRect.width()/2 - toplevel.width()/2,
-                          screenRect.height()/2 - toplevel.height()/2));
-    toplevel.setWindowFlags (Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
-
     toplevel.show();
     app.exec();
 }
@@ -116,6 +99,18 @@ Page::Page()
     : QWebPage (0)
 {
 
+    QWebSettings::globalSettings()->setDefaultTextEncoding (QString ("utf-8"));
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::PluginsEnabled, false);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::JavascriptEnabled, true);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::SpatialNavigationEnabled, false);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::LinksIncludedInFocusChain, false);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::PrivateBrowsingEnabled, true);
+    QWebSettings::globalSettings()->setAttribute (QWebSettings::AutoLoadImages, true);
+    QWebSettings::setMaximumPagesInCache (0);
+    QWebSettings::setObjectCacheCapacities (0, 0, 0);
+    QWebSettings::setMaximumPagesInCache (0);
+    QWebSettings::clearMemoryCaches();
+
 }
 
 TopLevel::TopLevel()
@@ -141,8 +136,13 @@ TopLevel::TopLevel()
     QShortcut *enterShortcut = new QShortcut (Qt::Key_Return, this);
     QObject::connect (enterShortcut, SIGNAL (activated()), this, SLOT (closeAppSlot()));
 
-    setFixedSize (settings.windowWidth, settings.windowHeigth);
     setContextMenuPolicy (Qt::NoContextMenu);
+    setWindowFlags (Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+
+    setFixedSize (settings.windowWidth, settings.windowHeigth);
+    QRect screenRect = QDesktopWidget().screen()->rect();
+    move (QPoint(screenRect.width()/2 - width()/2,
+                          screenRect.height()/2 - height()/2));
 
     if (settings.input == "stdin") {
         setWindowTitle ("Message");
