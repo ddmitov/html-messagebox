@@ -25,7 +25,6 @@ print HTMLMSG <<HTML;
 		</table>
 	</body>
 </html>
-
 HTML
 
 close(HTMLMSG) or die "Couldn't close: $!\n";
