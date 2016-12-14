@@ -1,16 +1,24 @@
-// HTML Message Box
+/*
+ HTML Message Box
 
-// HTML Message Box is a small Qt4/5 program with only one purpose in life:
-// to display nice HTML messageboxes from command line scripts.
-
-// This software is licensed under the terms of GNU GPL v.3 and
-// is provided without warranties of any kind!
-// Dimitar D. Mitov, 2013 - 2016
+ This program is free software;
+ you can redistribute it and/or modify it under the terms of the
+ GNU Lesser General Public License,
+ as published by the Free Software Foundation;
+ either version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY;
+ without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.
+ Dimitar D. Mitov, 2013 - 2016
+ https://github.com/ddmitov/html-messagebox
+*/
 
 #ifndef HTMLMSG_H
 #define HTMLMSG_H
 
 #include <qglobal.h>
+
 #if QT_VERSION >= 0x050000
 // Qt5 code:
 #include <QtWidgets>

@@ -1,13 +1,21 @@
-// HTML Message Box
+/*
+ HTML Message Box
 
-// HTML Message Box is a small Qt4/5 program with only one purpose in life:
-// to display nice HTML messageboxes from command line scripts.
-
-// This software is licensed under the terms of GNU GPL v.3 and
-// is provided without warranties of any kind!
-// Dimitar D. Mitov, 2013 - 2016
+ This program is free software;
+ you can redistribute it and/or modify it under the terms of the
+ GNU Lesser General Public License,
+ as published by the Free Software Foundation;
+ either version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY;
+ without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.
+ Dimitar D. Mitov, 2013 - 2016
+ https://github.com/ddmitov/html-messagebox
+*/
 
 #include <qglobal.h>
+
 #if QT_VERSION >= 0x050000
 // Qt5 code:
 #include <QtWidgets>
@@ -25,7 +33,7 @@
 
 int main (int argc, char **argv)
 {
-    QApplication app (argc, argv);
+    QApplication application (argc, argv);
 
     // Display command line help if the program is started without arguments:
     QStringList arguments = QCoreApplication::arguments();
@@ -54,7 +62,7 @@ int main (int argc, char **argv)
 
     TopLevel toplevel;
     toplevel.show();
-    app.exec();
+    application.exec();
 }
 
 Settings::Settings()
@@ -122,14 +130,6 @@ TopLevel::TopLevel()
             setScrollBarPolicy (Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     mainPage->mainFrame()->
             setScrollBarPolicy (Qt::Vertical, Qt::ScrollBarAlwaysOff);
-
-    QShortcut *escapeShortcut = new QShortcut (Qt::Key_Escape, this);
-    QObject::connect (escapeShortcut, SIGNAL (activated()),
-                      this, SLOT (closeAppSlot()));
-
-    QShortcut *enterShortcut = new QShortcut (Qt::Key_Return, this);
-    QObject::connect (enterShortcut, SIGNAL (activated()),
-                      this, SLOT (closeAppSlot()));
 
     setContextMenuPolicy (Qt::NoContextMenu);
     setWindowFlags (Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
