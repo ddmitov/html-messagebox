@@ -40,8 +40,7 @@ int main (int argc, char **argv)
     if (arguments.count() < 2) {
         Settings settings;
         settings.displayHelp();
-        return 1;
-        QApplication::exit();
+        return 0;
     }
 
     // Display command line help if '--help' argument is used:
@@ -49,8 +48,7 @@ int main (int argc, char **argv)
         if (argument.contains ("--help")) {
             Settings settings;
             settings.displayHelp();
-            return 1;
-            QApplication::exit();
+            return 0;
         }
     }
 
@@ -68,31 +66,28 @@ int main (int argc, char **argv)
 Settings::Settings()
     : QObject (0)
 {
+    windowWidth = 200;
+    windowHeigth = 200;
+    timeoutSeconds = 0;
+
     // Read command line arguments:
     QStringList arguments = QCoreApplication::arguments();
     foreach (QString argument, arguments){
         if (argument.contains ("--width") or argument.contains ("-w")) {
-            windowWidth = argument.section ("=", 1, 1).toInt();
+            if (argument.section ("=", 1, 1).toInt() > 200) {
+                windowWidth = argument.section ("=", 1, 1).toInt();
+            }
         }
         if (argument.contains ("--heigth") or argument.contains ("-h")) {
-            windowHeigth = argument.section ("=", 1, 1).toInt();
+            if (argument.section ("=", 1, 1).toInt() > 200) {
+                windowHeigth = argument.section ("=", 1, 1).toInt();
+            }
         }
         if (argument.contains ("--timeout") or argument.contains ("-t")) {
-            timeoutSeconds = argument.section ("=", 1, 1).toInt();
+            if (argument.section ("=", 1, 1).toInt() > 3) {
+                timeoutSeconds = argument.section ("=", 1, 1).toInt();
+            }
         }
-    }
-
-    // Default values if command line arguments have values bellow minimal:
-    if (windowWidth < 50) {
-        windowWidth = 400;
-    }
-
-    if (windowHeigth < 50) {
-        windowHeigth = 200;
-    }
-
-    if (timeoutSeconds < 3){
-        timeoutSeconds = 0;
     }
 }
 
@@ -147,7 +142,8 @@ TopLevel::TopLevel()
 
     if (settings.timeoutSeconds > 0) {
         int timeoutMilliseconds = settings.timeoutSeconds * 1000;
-        QTimer::singleShot (timeoutMilliseconds, this, SLOT (closeAppSlot()));
+        QTimer *timer = new QTimer();
+        timer->singleShot (timeoutMilliseconds, this, SLOT (closeAppSlot()));
     }
 
     QTextStream qtin(stdin);

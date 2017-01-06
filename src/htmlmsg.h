@@ -61,18 +61,19 @@ public slots:
         std::cout << " " << std::endl;
         std::cout << "Command line options:" << std::endl;
         std::cout << "  --width   -w    "
-                  << "message width in points. Minimum: 50 points"
+                  << "message width in points. Minimum: 200 points"
                   << std::endl;
         std::cout << "  --heigth  -h    "
-                  << "message heigth in points. Minimum: 50 points"
+                  << "message heigth in points. Minimum: 200 points"
                   << std::endl;
         std::cout << "  --timeout -t    "
-                  << "timeout in seconds. Minimum: 3 seconds. "
-                  << "0 means no timeout."
+                  << "timeout in seconds. "
+                  << "Less than 3 seconds means no timeout."
                   << std::endl;
         std::cout << "  --help          this help"
                   << std::endl;
         std::cout << " " << std::endl;
+        QApplication::exit();
     }
 };
 
