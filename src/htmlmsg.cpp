@@ -10,7 +10,7 @@
  but WITHOUT ANY WARRANTY;
  without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.
- Dimitar D. Mitov, 2013 - 2016
+ Dimitar D. Mitov, 2013 - 2017
  https://github.com/ddmitov/html-messagebox
 */
 
@@ -72,7 +72,7 @@ Settings::Settings()
 
     // Read command line arguments:
     QStringList arguments = QCoreApplication::arguments();
-    foreach (QString argument, arguments){
+    foreach (QString argument, arguments) {
         if (argument.contains ("--width") or argument.contains ("-w")) {
             if (argument.section ("=", 1, 1).toInt() > 200) {
                 windowWidth = argument.section ("=", 1, 1).toInt();
@@ -95,18 +95,21 @@ Page::Page()
     : QWebPage (0)
 {
     QWebSettings::globalSettings()->setDefaultTextEncoding (QString ("utf-8"));
-    QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::PluginsEnabled, false);
+
     QWebSettings::globalSettings()->
             setAttribute (QWebSettings::JavascriptEnabled, true);
+    QWebSettings::globalSettings()->
+            setAttribute (QWebSettings::AutoLoadImages, true);
+
+    QWebSettings::globalSettings()->
+            setAttribute (QWebSettings::PluginsEnabled, false);
     QWebSettings::globalSettings()->
             setAttribute (QWebSettings::SpatialNavigationEnabled, false);
     QWebSettings::globalSettings()->
             setAttribute (QWebSettings::LinksIncludedInFocusChain, false);
     QWebSettings::globalSettings()->
             setAttribute (QWebSettings::PrivateBrowsingEnabled, true);
-    QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::AutoLoadImages, true);
+
     QWebSettings::setMaximumPagesInCache (0);
     QWebSettings::setObjectCacheCapacities (0, 0, 0);
     QWebSettings::setMaximumPagesInCache (0);

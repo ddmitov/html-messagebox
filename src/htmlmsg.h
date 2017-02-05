@@ -10,7 +10,7 @@
  but WITHOUT ANY WARRANTY;
  without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.
- Dimitar D. Mitov, 2013 - 2016
+ Dimitar D. Mitov, 2013 - 2017
  https://github.com/ddmitov/html-messagebox
 */
 
@@ -103,7 +103,6 @@ public slots:
 
 public:
     TopLevel();
-    QTimer *timer;
 
 private:
     Page *mainPage;
