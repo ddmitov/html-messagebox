@@ -32,8 +32,8 @@ print HTMLMSG <<HTML;
       <tr>
         <td style='vertical-align: middle'>
           <p align='center'><font size='4' face='Sans'>
-            TEST<br>
-            <a href='close://'>Click here to close</a>
+             HTML Message Box Test Screen<br>
+             <a href='close://'>Click here to close</a>
           </font></p>
         </td>
       </tr>

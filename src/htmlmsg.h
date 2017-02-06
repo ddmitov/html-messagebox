@@ -29,83 +29,45 @@
 
 #include <QApplication>
 #include <QWebPage>
+#include <QWebFrame>
 #include <QWebView>
-#include <iostream> // for std::cout
 
-class Settings : public QObject
+class QPage : public QWebPage
 {
     Q_OBJECT
 
 public:
-    Settings();
-
-    int windowWidth;
-    int windowHeigth;
-    int timeoutSeconds;
-
-public slots:
-    void displayHelp()
-    {
-        // Display help:
-        std::cout << " " << std::endl;
-        std::cout << "HTML Message Box v.0.1" << std::endl;
-        std::cout << "Executable: "
-                  << (QDir::toNativeSeparators (
-                          QApplication::applicationFilePath())
-                      .toLatin1().constData())
-                  << std::endl;
-        std::cout << "Qt version: " << QT_VERSION_STR << std::endl;
-        std::cout << " " << std::endl;
-        std::cout << "Usage:" << std::endl;
-        std::cout << "  htmlmsg --option=value -o=value" << std::endl;
-        std::cout << " " << std::endl;
-        std::cout << "Command line options:" << std::endl;
-        std::cout << "  --width   -w    "
-                  << "message width in points. Minimum: 200 points"
-                  << std::endl;
-        std::cout << "  --heigth  -h    "
-                  << "message heigth in points. Minimum: 200 points"
-                  << std::endl;
-        std::cout << "  --timeout -t    "
-                  << "timeout in seconds. "
-                  << "Less than 3 seconds means no timeout."
-                  << std::endl;
-        std::cout << "  --help          this help"
-                  << std::endl;
-        std::cout << " " << std::endl;
-        QApplication::exit();
-    }
-};
-
-class Page : public QWebPage
-{
-    Q_OBJECT
-
-public:
-    Page();
+    QPage();
 
 protected:
-
-    bool acceptNavigationRequest (QWebFrame *frame,
-                                  const QNetworkRequest &request,
-                                  QWebPage::NavigationType navigationType);
+    bool acceptNavigationRequest(QWebFrame *frame,
+                                 const QNetworkRequest &request,
+                                 QWebPage::NavigationType navigationType);
 };
 
-class TopLevel : public QWebView
+class QWebViewWindow : public QWebView
 {
     Q_OBJECT
 
 public slots:
-    void closeAppSlot()
+    void qReadStdin()
     {
-        qApp->exit();
+        QTextStream qtin(stdin);
+        QString input = qtin.readAll();
+
+        if (input.length() > 0) {
+            mainPage->mainFrame()->setHtml(input);
+        }
+    }
+
+    void qCloseApplicationSlot()
+    {
+        QApplication::exit();
     }
 
 public:
-    TopLevel();
-
-private:
-    Page *mainPage;
+    QWebViewWindow();
+    QWebPage *mainPage;
 };
 
 #endif // HTMLMSG_H

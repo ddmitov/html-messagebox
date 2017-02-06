@@ -9,7 +9,7 @@
 # but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.
-# Dimitar D. Mitov, 2013 - 2016
+# Dimitar D. Mitov, 2013 - 2017
 # https://github.com/ddmitov/html-messagebox
 
 TEMPLATE = app
@@ -27,3 +27,11 @@ greaterThan (QT_MAJOR_VERSION, 4) {
 
 HEADERS += htmlmsg.h
 SOURCES += htmlmsg.cpp
+
+# Destination directory for the compiled binary:
+DESTDIR = $$PWD/../
+
+# Temporary folder:
+MOC_DIR = tmp
+OBJECTS_DIR = tmp
+RCC_DIR = tmp

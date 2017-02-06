@@ -25,90 +25,134 @@
 #endif
 
 #include <QApplication>
-#include <QWebPage>
-#include <QWebView>
-#include <QWebFrame>
 #include <QtNetwork/QNetworkRequest>
+#include <QWebPage>
+#include <QWebFrame>
+#include <QWebView>
+#include <iostream> // for std::cout
 #include "htmlmsg.h"
 
-int main (int argc, char **argv)
+void displayHelp()
 {
-    QApplication application (argc, argv);
-
-    // Display command line help if the program is started without arguments:
-    QStringList arguments = QCoreApplication::arguments();
-    if (arguments.count() < 2) {
-        Settings settings;
-        settings.displayHelp();
-        return 0;
-    }
-
-    // Display command line help if '--help' argument is used:
-    foreach (QString argument, arguments){
-        if (argument.contains ("--help")) {
-            Settings settings;
-            settings.displayHelp();
-            return 0;
-        }
-    }
-
-#if QT_VERSION >= 0x050000
-    QTextCodec::setCodecForLocale (QTextCodec::codecForName ("UTF8"));
-#else
-    QTextCodec::setCodecForCStrings (QTextCodec::codecForName ("UTF8"));
-#endif
-
-    TopLevel toplevel;
-    toplevel.show();
-    application.exec();
+    // Display help:
+    std::cout << " " << std::endl;
+    std::cout << qApp->applicationName().toLatin1().constData()
+              << " version "
+              << qApp->applicationVersion().toLatin1().constData()
+              << std::endl;
+    std::cout << "Executable: "
+              << (QDir::toNativeSeparators (
+                      QApplication::applicationFilePath())
+                  .toLatin1().constData())
+              << std::endl;
+    std::cout << "Qt version: " << QT_VERSION_STR << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << "Usage:" << std::endl;
+    std::cout << "  htmlmsg --option=value -o=value" << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << "Command line options:" << std::endl;
+    std::cout << "  --width   -w    "
+              << "message width in points. Minimum: 200 points"
+              << std::endl;
+    std::cout << "  --heigth  -h    "
+              << "message heigth in points. Minimum: 200 points"
+              << std::endl;
+    std::cout << "  --timeout -t    "
+              << "timeout in seconds. "
+              << "Less than 3 seconds means no timeout."
+              << std::endl;
+    std::cout << "  --help          this help"
+              << std::endl;
+    std::cout << " " << std::endl;
+    QApplication::exit();
 }
 
-Settings::Settings()
-    : QObject (0)
+int main(int argc, char **argv)
 {
-    windowWidth = 200;
-    windowHeigth = 200;
-    timeoutSeconds = 0;
+    QApplication application(argc, argv);
+
+    application.setApplicationName("HTML Message Box");
+    application.setApplicationVersion("0.2.0");
+
+#if QT_VERSION >= 0x050000
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName ("UTF8"));
+#else
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForName ("UTF8"));
+#endif
+
+    int windowWidth = 200;
+    int windowHeigth = 200;
+    int timeoutSeconds = 0;
 
     // Read command line arguments:
     QStringList arguments = QCoreApplication::arguments();
+
+    // If application is started without command line arguments:
+    if (arguments.count() < 2) {
+        displayHelp();
+        return 0;
+    }
+
     foreach (QString argument, arguments) {
-        if (argument.contains ("--width") or argument.contains ("-w")) {
+        if (argument.contains("--help")) {
+            displayHelp();
+            return 0;
+        }
+        if (argument.contains("--width") or argument.contains ("-w")) {
             if (argument.section ("=", 1, 1).toInt() > 200) {
                 windowWidth = argument.section ("=", 1, 1).toInt();
+                application.setProperty("windowWidth", windowWidth);
             }
         }
-        if (argument.contains ("--heigth") or argument.contains ("-h")) {
+        if (argument.contains("--heigth") or argument.contains ("-h")) {
             if (argument.section ("=", 1, 1).toInt() > 200) {
                 windowHeigth = argument.section ("=", 1, 1).toInt();
+                application.setProperty("windowHeigth", windowHeigth);
             }
         }
-        if (argument.contains ("--timeout") or argument.contains ("-t")) {
+        if (argument.contains("--timeout") or argument.contains ("-t")) {
             if (argument.section ("=", 1, 1).toInt() > 3) {
                 timeoutSeconds = argument.section ("=", 1, 1).toInt();
+                application.setProperty("timeoutSeconds", timeoutSeconds);
             }
         }
     }
+
+    QWebViewWindow window;
+
+    window.setFixedSize (windowWidth, windowHeigth);
+    QRect screenRect = QDesktopWidget().screen()->rect();
+    window.move (QPoint(
+                       screenRect.width()/2 - windowWidth/2,
+                       screenRect.height()/2 - windowHeigth/2));
+
+    window.qReadStdin();
+
+    if (timeoutSeconds > 0) {
+        int timeoutMilliseconds = timeoutSeconds * 1000;
+        QTimer *timer = new QTimer();
+        timer->singleShot (timeoutMilliseconds,
+                           &window, SLOT (qCloseApplicationSlot()));
+    }
+
+    window.show();
+    application.exec();
 }
 
-Page::Page()
+QPage::QPage()
     : QWebPage (0)
 {
-    QWebSettings::globalSettings()->setDefaultTextEncoding (QString ("utf-8"));
+    QWebSettings::globalSettings()->setDefaultTextEncoding(QString("utf-8"));
 
     QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::JavascriptEnabled, true);
-    QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::AutoLoadImages, true);
+            setAttribute(QWebSettings::PluginsEnabled, false);
 
     QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::PluginsEnabled, false);
+            setAttribute(QWebSettings::AutoLoadImages, true);
     QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::SpatialNavigationEnabled, false);
+            setAttribute(QWebSettings::JavascriptEnabled, true);
     QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::LinksIncludedInFocusChain, false);
-    QWebSettings::globalSettings()->
-            setAttribute (QWebSettings::PrivateBrowsingEnabled, true);
+            setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
 
     QWebSettings::setMaximumPagesInCache (0);
     QWebSettings::setObjectCacheCapacities (0, 0, 0);
@@ -116,53 +160,36 @@ Page::Page()
     QWebSettings::clearMemoryCaches();
 }
 
-TopLevel::TopLevel()
+QWebViewWindow::QWebViewWindow()
     : QWebView (0)
 {
-    Settings settings;
-
-    mainPage = new Page();
-    setPage (mainPage);
+    mainPage = new QPage();
     mainPage->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
     mainPage->mainFrame()->
-            setScrollBarPolicy (Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+            setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     mainPage->mainFrame()->
-            setScrollBarPolicy (Qt::Vertical, Qt::ScrollBarAlwaysOff);
+            setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+    setPage(mainPage);
 
-    setContextMenuPolicy (Qt::NoContextMenu);
-    setWindowFlags (Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+    setContextMenuPolicy(Qt::NoContextMenu);
 
-    setFixedSize (settings.windowWidth, settings.windowHeigth);
-    QRect screenRect = QDesktopWidget().screen()->rect();
-    move (QPoint(screenRect.width()/2 - width()/2,
-                          screenRect.height()/2 - height()/2));
+    setWindowFlags(Qt::WindowStaysOnTopHint);
+    setWindowTitle("HTML Message Box");
 
-    setWindowTitle ("Message");
-
-    QPixmap pix (16, 16);
-    pix.fill (Qt::transparent);
-    setWindowIcon (QIcon (pix));
-
-    if (settings.timeoutSeconds > 0) {
-        int timeoutMilliseconds = settings.timeoutSeconds * 1000;
-        QTimer *timer = new QTimer();
-        timer->singleShot (timeoutMilliseconds, this, SLOT (closeAppSlot()));
-    }
-
-    QTextStream qtin(stdin);
-    QString input = qtin.readAll();
-    setHtml (input);
+    QPixmap pix(16, 16);
+    pix.fill(Qt::transparent);
+    setWindowIcon(QIcon(pix));
 }
 
-bool Page::acceptNavigationRequest (QWebFrame *frame,
-                                   const QNetworkRequest &request,
-                                   QWebPage::NavigationType navigationType)
+bool QPage::acceptNavigationRequest(QWebFrame *frame,
+                                    const QNetworkRequest &request,
+                                    QWebPage::NavigationType navigationType)
 {
     Q_UNUSED(frame);
 
     if (navigationType == QWebPage::NavigationTypeLinkClicked) {
         if (request.url().scheme() == "close") {
-            qApp->exit();
+            QApplication::exit();
         } else {
             QDesktopServices::openUrl (request.url());
         }
