@@ -68,8 +68,7 @@ public slots:
         if (!targetDomElement.isNull()) {
             targetDomElement.setInnerXml(input);
         } else {
-            std::cout << "HTML DOM element with 'stdin' id was not found."
-                      << std::endl;
+            mainPage->mainFrame()->setHtml(input);
         }
     }
 
