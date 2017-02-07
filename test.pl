@@ -2,45 +2,34 @@
 
 use strict;
 use warnings;
+use AnyEvent;
+use POSIX qw(strftime);
 
-# The position or precedence of any command line argument is of no importance.
-my $pid = open (HTMLMSG, "| ./htmlmsg --width=400 --heigth=200 --timeout=15") or
+my $TIMEOUT = 10;
+my $current_time;
+my $elapsed_time = 0;
+
+my $pid = open (HTMLMSG, "|-",
+  "./htmlmsg", "--width=400", "--heigth=200", "--timeout=12") or
   die "Could not fork: $!\n";
 
-print HTMLMSG <<HTML;
-<html>
+# Set the event loop:
+my $event_loop = AnyEvent->condvar;
 
-  <head>
-    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-    <style type='text/css'>
-      body {
-        color: #ffffff;
-        background-color: #222222;
-        -webkit-text-size-adjust: 100%;
+my $wait_one_second = AnyEvent->timer (
+  after => 0,
+  interval => 1,
+  cb => sub {
+      $current_time = time;
+      select (HTMLMSG);
+      $|=1;
+      print HTMLMSG "Seconds from the Unix epoch:<br>$current_time\n";
+
+      $elapsed_time++;
+      if ($elapsed_time == $TIMEOUT) {
+        exit();
       }
-      a {
-        color: #ffffff;
-      }
-      a:visited {
-        color: #ffffff;
-      }
-    </style>
-  </head>
+  },
+);
 
-  <body>
-    <table width='100%' height='100%'>
-      <tr>
-        <td style='vertical-align: middle'>
-          <p align='center'><font size='4' face='Sans'>
-             HTML Message Box Test Screen<br>
-             <a href='close://'>Click here to close</a>
-          </font></p>
-        </td>
-      </tr>
-    </table>
-  </body>
-
-</html>
-HTML
-
-close (HTMLMSG) or die "Could not close: $!\n";
+$event_loop->recv;

@@ -31,6 +31,8 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebView>
+#include <QWebElement>
+#include <iostream> // for std::cout
 
 class QPage : public QWebPage
 {
@@ -53,10 +55,21 @@ public slots:
     void qReadStdin()
     {
         QTextStream qtin(stdin);
-        QString input = qtin.readAll();
+        QString input;
 
-        if (input.length() > 0) {
-            mainPage->mainFrame()->setHtml(input);
+        if (qtin.status() == QTextStream::Ok) {
+            input = qtin.readLine();
+            qtin.flush();
+        }
+
+        QWebElement targetDomElement =
+                mainPage->mainFrame()->documentElement().findFirst("#stdin");
+
+        if (!targetDomElement.isNull()) {
+            targetDomElement.setInnerXml(input);
+        } else {
+            std::cout << "HTML DOM element with 'stdin' id was not found."
+                      << std::endl;
         }
     }
 
@@ -68,6 +81,7 @@ public slots:
 public:
     QWebViewWindow();
     QWebPage *mainPage;
+
 };
 
 #endif // HTMLMSG_H

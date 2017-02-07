@@ -50,7 +50,7 @@ void displayHelp()
     std::cout << "Usage:" << std::endl;
     std::cout << "  htmlmsg --option=value -o=value" << std::endl;
     std::cout << " " << std::endl;
-    std::cout << "Command line options:" << std::endl;
+    std::cout << "Options:" << std::endl;
     std::cout << "  --width   -w    "
               << "message width in points. Minimum: 200 points"
               << std::endl;
@@ -118,6 +118,24 @@ int main(int argc, char **argv)
         }
     }
 
+    QString htmlFilePath =
+            application.applicationDirPath() +
+            QDir::separator() + "htmlmsg.html";
+    QFile htmlFile(htmlFilePath);
+    QString htmlContents;
+
+    if (htmlFile.exists()) {
+        htmlFile.open(QIODevice::ReadOnly | QIODevice::Text);
+        QTextStream htmlFileStream(&htmlFile);
+        htmlContents = htmlFileStream.readAll();
+        htmlFile.close();
+    } else {
+        std::cout << htmlFilePath.toLatin1().constData()
+                  << " was not found." << std::endl;
+        std::cout << "Aborting." << std::endl;
+        return 0;
+    }
+
     QWebViewWindow window;
 
     window.setFixedSize (windowWidth, windowHeigth);
@@ -126,7 +144,11 @@ int main(int argc, char **argv)
                        screenRect.width()/2 - windowWidth/2,
                        screenRect.height()/2 - windowHeigth/2));
 
-    window.qReadStdin();
+    QSocketNotifier *stdinNotifier =
+            new QSocketNotifier(fileno(stdin), QSocketNotifier::Read);
+    QObject::connect(stdinNotifier, SIGNAL(activated(int)),
+                     &window, SLOT(qReadStdin()));
+    stdinNotifier->setEnabled(true);
 
     if (timeoutSeconds > 0) {
         int timeoutMilliseconds = timeoutSeconds * 1000;
@@ -134,6 +156,8 @@ int main(int argc, char **argv)
         timer->singleShot (timeoutMilliseconds,
                            &window, SLOT (qCloseApplicationSlot()));
     }
+
+    window.mainPage->mainFrame()->setHtml(htmlContents);
 
     window.show();
     application.exec();
