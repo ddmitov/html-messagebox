@@ -52,6 +52,11 @@ class QWebViewWindow : public QWebView
     Q_OBJECT
 
 public slots:
+    void qChangeTitleSlot()
+    {
+        setWindowTitle(QWebViewWindow::title());
+    }
+
     void qReadStdin()
     {
         QTextStream qtin(stdin);
@@ -62,13 +67,16 @@ public slots:
             qtin.flush();
         }
 
-        QWebElement targetDomElement =
-                mainPage->mainFrame()->documentElement().findFirst("#stdin");
+        if (input.length() > 0) {
+            QWebElement targetDomElement =
+                    mainPage->
+                    mainFrame()->documentElement().findFirst("#stdin");
 
-        if (!targetDomElement.isNull()) {
-            targetDomElement.setInnerXml(input);
-        } else {
-            mainPage->mainFrame()->setHtml(input);
+            if (!targetDomElement.isNull()) {
+                targetDomElement.setInnerXml(input);
+            } else {
+                mainPage->mainFrame()->setHtml(input);
+            }
         }
     }
 

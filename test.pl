@@ -6,12 +6,16 @@ use AnyEvent;
 use POSIX qw(strftime);
 
 my $TIMEOUT = 10;
-my $current_time;
+
 my $elapsed_time = 0;
+my $remaining_time;
 
 my $pid = open (HTMLMSG, "|-",
-  "./htmlmsg", "--width=400", "--heigth=200", "--timeout=12") or
+  "./htmlmsg", "--width=400", "--heigth=200", "--timeout=$TIMEOUT") or
   die "Could not fork: $!\n";
+
+select (HTMLMSG);
+$|=1;
 
 # Set the event loop:
 my $event_loop = AnyEvent->condvar;
@@ -20,12 +24,11 @@ my $wait_one_second = AnyEvent->timer (
   after => 0,
   interval => 1,
   cb => sub {
-      $current_time = time;
-      select (HTMLMSG);
-      $|=1;
-      print HTMLMSG "Seconds from the Unix epoch:<br>$current_time\n";
-
+      my $remaining_time = $TIMEOUT - $elapsed_time;
       $elapsed_time++;
+
+      print HTMLMSG "Remaining seconds: $remaining_time\n";
+
       if ($elapsed_time == $TIMEOUT) {
         exit();
       }

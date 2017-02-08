@@ -30,6 +30,7 @@
 #include <QWebFrame>
 #include <QWebView>
 #include <iostream> // for std::cout
+#include <unistd.h> // isatty()
 #include "htmlmsg.h"
 
 void displayHeader()
@@ -114,6 +115,7 @@ int main(int argc, char **argv)
         }
     }
 
+    // Read the matrix for all HTML messages:
     QString htmlFilePath =
             application.applicationDirPath() +
             QDir::separator() + "htmlmsg.html";
@@ -134,20 +136,23 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    // Initiate the message box and load the HTML code:
     QWebViewWindow window;
+    window.mainPage->mainFrame()->setHtml(htmlContents);
 
+    // Read any initial STDIN data:
+    if (isatty(fileno(stdin))) {
+        window.qReadStdin();
+    }
+
+    // Set the message box dimensions and center it on screen:
     window.setFixedSize (windowWidth, windowHeigth);
     QRect screenRect = QDesktopWidget().screen()->rect();
     window.move (QPoint(
                        screenRect.width()/2 - windowWidth/2,
                        screenRect.height()/2 - windowHeigth/2));
 
-    QSocketNotifier *stdinNotifier =
-            new QSocketNotifier(fileno(stdin), QSocketNotifier::Read);
-    QObject::connect(stdinNotifier, SIGNAL(activated(int)),
-                     &window, SLOT(qReadStdin()));
-    stdinNotifier->setEnabled(true);
-
+    // Set the message box timeout:
     if (timeoutSeconds > 0) {
         int timeoutMilliseconds = timeoutSeconds * 1000;
         QTimer *timer = new QTimer();
@@ -155,8 +160,14 @@ int main(int argc, char **argv)
                            &window, SLOT (qCloseApplicationSlot()));
     }
 
-    window.mainPage->mainFrame()->setHtml(htmlContents);
+    // Set the STDIN watcher:
+    QSocketNotifier *stdinNotifier =
+            new QSocketNotifier(fileno(stdin), QSocketNotifier::Read);
+    QObject::connect(stdinNotifier, SIGNAL(activated(int)),
+                     &window, SLOT(qReadStdin()));
+    stdinNotifier->setEnabled(true);
 
+    // Display the message box:
     window.show();
     application.exec();
 }
@@ -187,20 +198,28 @@ QWebViewWindow::QWebViewWindow()
 {
     mainPage = new QPage();
     mainPage->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
-    mainPage->mainFrame()->
-            setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-    mainPage->mainFrame()->
-            setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+
+    // Disable scrolbars:
+    mainPage->mainFrame()->setScrollBarPolicy(Qt::Horizontal,
+                                              Qt::ScrollBarAlwaysOff);
+    mainPage->mainFrame()->setScrollBarPolicy(Qt::Vertical,
+                                              Qt::ScrollBarAlwaysOff);
+
     setPage(mainPage);
 
+    // Disable context menu:
     setContextMenuPolicy(Qt::NoContextMenu);
 
     setWindowFlags(Qt::WindowStaysOnTopHint);
-    setWindowTitle("HTML Message Box");
 
+    // Set an empty transparent icon:
     QPixmap pix(16, 16);
     pix.fill(Qt::transparent);
     setWindowIcon(QIcon(pix));
+
+    // Signal and slot for changing the window title:
+    QObject::connect(mainPage, SIGNAL(loadFinished(bool)),
+                     this, SLOT(qChangeTitleSlot()));
 }
 
 bool QPage::acceptNavigationRequest(QWebFrame *frame,
