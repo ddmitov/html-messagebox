@@ -1,5 +1,7 @@
 Thanks and Credits
 --------------------------------------------------------------------------------
+
+## Qt
 https://gitorious.org/qt-examples/qt-examples/source/sitespecificbrowser  
 
 http://doc.qt.io/qt-4.8/qwebelement.html  
@@ -27,4 +29,10 @@ http://stackoverflow.com/questions/18280733/retrieving-command-line-arguments-in
 
 http://www.codeprogress.com/cpp/libraries/qt/qMessageBoxAutoClose.php  
 
+## HTML & CSS
 http://phrogz.net/css/vertical-align/  
+
+https://css-tricks.com/css3-button-maker/  
+https://css-tricks.com/examples/ButtonMaker/  
+
+http://www.w3schools.com/w3css/w3css_buttons.asp  
