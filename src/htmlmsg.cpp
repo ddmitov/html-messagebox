@@ -15,16 +15,8 @@
 */
 
 #include <qglobal.h>
-
-#if QT_VERSION >= 0x050000
-// Qt5 code:
-#include <QtWidgets>
-#else
-// Qt4 code:
-#include <QtGui>
-#endif
-
 #include <QApplication>
+#include <QtWidgets>
 #include <QtNetwork/QNetworkRequest>
 #include <QWebPage>
 #include <QWebFrame>
@@ -40,11 +32,7 @@ int main(int argc, char **argv)
     application.setApplicationName("HTML Message Box");
     application.setApplicationVersion("0.2.0");
 
-#if QT_VERSION >= 0x050000
     QTextCodec::setCodecForLocale(QTextCodec::codecForName ("UTF8"));
-#else
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName ("UTF8"));
-#endif
 
     int windowWidth = 400;
     int windowHeigth = 200;

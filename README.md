@@ -7,7 +7,7 @@ HTML Message Box
 [![Build Status](https://travis-ci.org/ddmitov/html-messagebox.svg?branch=master)](https://travis-ci.org/ddmitov/html-messagebox)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/ddmitov/html-messagebox?branch=master&svg=true)](https://ci.appveyor.com/project/ddmitov/html-messagebox)  
 
-HTML Message Box is a small Qt4/5 program with only one purpose:  
+HTML Message Box is a small Qt 5 program with only one purpose:  
 to show nice HTML message boxes from command line scripts.  
 
 This program is free software;  
