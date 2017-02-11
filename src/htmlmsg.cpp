@@ -29,19 +29,9 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebView>
-#include <iostream> // for std::cout
+#include <iostream> // std::cout
 #include <unistd.h> // isatty()
 #include "htmlmsg.h"
-
-void displayHeader()
-{
-    // Display header:
-    std::cout << " " << std::endl;
-    std::cout << qApp->applicationName().toLatin1().constData()
-              << " version "
-              << qApp->applicationVersion().toLatin1().constData()
-              << std::endl;
-}
 
 int main(int argc, char **argv)
 {
@@ -65,7 +55,11 @@ int main(int argc, char **argv)
 
     foreach (QString argument, arguments) {
         if (argument.contains("--help")) {
-            displayHeader();
+            std::cout << " " << std::endl;
+            std::cout << qApp->applicationName().toLatin1().constData()
+                      << " version "
+                      << qApp->applicationVersion().toLatin1().constData()
+                      << std::endl;
             std::cout << "Executable: "
                       << (QDir::toNativeSeparators (
                               QApplication::applicationFilePath())
@@ -115,30 +109,30 @@ int main(int argc, char **argv)
         }
     }
 
-    // Read the matrix for all HTML messages:
-    QString htmlFilePath =
+    // Initiate the message box:
+    QWebViewWindow window;
+
+    // External HTML message template:
+    QString externalHtmlFilePath =
             application.applicationDirPath() +
             QDir::separator() + "htmlmsg.html";
-    QFile htmlFile(htmlFilePath);
-    QString htmlContents;
 
-    if (htmlFile.exists()) {
-        htmlFile.open(QIODevice::ReadOnly | QIODevice::Text);
-        QTextStream htmlFileStream(&htmlFile);
-        htmlContents = htmlFileStream.readAll();
-        htmlFile.close();
+    QFile externalHtmlFile(externalHtmlFilePath);
+    if (externalHtmlFile.exists()) {
+        // Load the external HTML message template:
+        QFileReader *resourceReader =
+                new QFileReader(externalHtmlFilePath);
+        QString htmlContent = resourceReader->fileContents;
+
+        window.mainPage->mainFrame()->setHtml(htmlContent);
     } else {
-        displayHeader();
-        std::cout << htmlFilePath.toLatin1().constData()
-                  << " was not found." << std::endl;
-        std::cout << "Aborting." << std::endl;
-        std::cout << " " << std::endl;
-        return 0;
-    }
+        // Load the embedded HTML message template:
+        QFileReader *resourceReader =
+                new QFileReader(QString(":/htmlmsg.html"));
+        QString htmlContent = resourceReader->fileContents;
 
-    // Initiate the message box and load the HTML code:
-    QWebViewWindow window;
-    window.mainPage->mainFrame()->setHtml(htmlContents);
+        window.mainPage->mainFrame()->setHtml(htmlContent);
+    }
 
     // Read any initial STDIN data:
     if (isatty(fileno(stdin))) {
@@ -172,6 +166,24 @@ int main(int argc, char **argv)
     application.exec();
 }
 
+// ==============================
+// FILE READER CONSTRUCTOR:
+// Usefull for both files inside binary resources and files on disk
+// ==============================
+QFileReader::QFileReader(QString filePath)
+    : QObject(0)
+{
+    QString fileName(filePath);
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream fileStream(&file);
+    fileContents = fileStream.readAll();
+    file.close();
+}
+
+// ==============================
+// WEB PAGE CLASS CONSTRUCTOR:
+// ==============================
 QPage::QPage()
     : QWebPage (0)
 {
@@ -193,6 +205,9 @@ QPage::QPage()
     QWebSettings::clearMemoryCaches();
 }
 
+// ==============================
+// WEB VIEW CLASS CONSTRUCTOR:
+// ==============================
 QWebViewWindow::QWebViewWindow()
     : QWebView (0)
 {

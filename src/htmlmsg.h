@@ -34,6 +34,22 @@
 #include <QWebElement>
 #include <iostream> // for std::cout
 
+// ==============================
+// FILE READER CLASS DEFINITION:
+// Usefull for both files inside binary resources and files on disk
+// ==============================
+class QFileReader : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit QFileReader(QString filePath);
+    QString fileContents;
+};
+
+// ==============================
+// WEB PAGE CLASS CONSTRUCTOR:
+// ==============================
 class QPage : public QWebPage
 {
     Q_OBJECT
@@ -47,6 +63,9 @@ protected:
                                  QWebPage::NavigationType navigationType);
 };
 
+// ==============================
+// WEB VIEW CLASS DEFINITION:
+// ==============================
 class QWebViewWindow : public QWebView
 {
     Q_OBJECT

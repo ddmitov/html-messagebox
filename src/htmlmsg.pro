@@ -28,6 +28,9 @@ greaterThan (QT_MAJOR_VERSION, 4) {
 HEADERS += htmlmsg.h
 SOURCES += htmlmsg.cpp
 
+# Resources:
+RESOURCES += resources/htmlmsg.qrc
+
 # Destination directory for the compiled binary:
 DESTDIR = $$PWD/../
 
