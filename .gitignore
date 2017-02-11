@@ -1,0 +1,6 @@
+*.pro.*
+Makefile
+htmlmsg
+htmlmsg.exe
+gdrive
+upgit
