@@ -17,6 +17,8 @@
 #ifndef HTMLMSG_H
 #define HTMLMSG_H
 
+#include <iostream> // for std::cout
+
 #include <qglobal.h>
 #include <QApplication>
 #include <QtWidgets>
@@ -25,7 +27,6 @@
 #include <QWebFrame>
 #include <QWebView>
 #include <QWebElement>
-#include <iostream> // for std::cout
 
 // ==============================
 // FILE READER CLASS DEFINITION:
@@ -41,7 +42,7 @@ public:
 };
 
 // ==============================
-// WEB PAGE CLASS CONSTRUCTOR:
+// PAGE CLASS CONSTRUCTOR:
 // ==============================
 class QPage : public QWebPage
 {
@@ -73,16 +74,16 @@ protected:
 };
 
 // ==============================
-// WEB VIEW CLASS DEFINITION:
+// VIEW CLASS DEFINITION:
 // ==============================
-class QWebViewWindow : public QWebView
+class QView : public QWebView
 {
     Q_OBJECT
 
 public slots:
     void qChangeTitleSlot()
     {
-        setWindowTitle(QWebViewWindow::title());
+        setWindowTitle(QView::title());
     }
 
     void qReadStdin()
@@ -114,7 +115,7 @@ public slots:
     }
 
 public:
-    QWebViewWindow();
+    QView();
     QWebPage *mainPage;
 
 };

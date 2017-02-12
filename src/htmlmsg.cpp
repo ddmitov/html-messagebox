@@ -14,14 +14,16 @@
  https://github.com/ddmitov/html-messagebox
 */
 
+#include <iostream> // std::cout
+#include <unistd.h> // isatty()
+
 #include <qglobal.h>
 #include <QApplication>
 #include <QtWidgets>
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebView>
-#include <iostream> // std::cout
-#include <unistd.h> // isatty()
+
 #include "htmlmsg.h"
 
 int main(int argc, char **argv)
@@ -133,7 +135,7 @@ int main(int argc, char **argv)
     }
 
     // Initiate the message box and load the HTML message:
-    QWebViewWindow window;
+    QView window;
     window.mainPage->mainFrame()->setHtml(htmlContent);
 
     // Read any initial STDIN data:
@@ -184,7 +186,7 @@ QFileReader::QFileReader(QString filePath)
 }
 
 // ==============================
-// WEB PAGE CLASS CONSTRUCTOR:
+// PAGE CLASS CONSTRUCTOR:
 // ==============================
 QPage::QPage()
     : QWebPage (0)
@@ -207,9 +209,9 @@ QPage::QPage()
 }
 
 // ==============================
-// WEB VIEW CLASS CONSTRUCTOR:
+// WINDOW CLASS CONSTRUCTOR:
 // ==============================
-QWebViewWindow::QWebViewWindow()
+QView::QView()
     : QWebView (0)
 {
     mainPage = new QPage();
