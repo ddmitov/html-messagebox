@@ -12,6 +12,10 @@
 # Dimitar D. Mitov, 2013 - 2017
 # https://github.com/ddmitov/html-messagebox
 
+win32 {
+    error ("HTML Message Box does not support the Windows platform.")
+}
+
 message ("Going to configure HTML Message Box for Qt $$[QT_VERSION]")
 
 lessThan (QT_MAJOR_VERSION, 5) {

@@ -20,6 +20,7 @@
 #include <qglobal.h>
 #include <QApplication>
 #include <QtWidgets>
+#include <QtNetwork/QNetworkRequest>
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebView>
@@ -52,7 +53,23 @@ public:
 protected:
     bool acceptNavigationRequest(QWebFrame *frame,
                                  const QNetworkRequest &request,
-                                 QWebPage::NavigationType navigationType);
+                                 QWebPage::NavigationType navigationType)
+    {
+        Q_UNUSED(frame);
+
+        // '<a href="close://">Close</a>' will close the message box:
+        if (navigationType == QWebPage::NavigationTypeLinkClicked) {
+            if (request.url().scheme() == "close") {
+                QApplication::exit();
+            } else {
+                // All other links will be handled by
+                // the default applications of the operating system:
+                QDesktopServices::openUrl (request.url());
+            }
+        }
+
+        return false;
+    }
 };
 
 // ==============================

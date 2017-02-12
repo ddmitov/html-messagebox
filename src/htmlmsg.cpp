@@ -17,7 +17,6 @@
 #include <qglobal.h>
 #include <QApplication>
 #include <QtWidgets>
-#include <QtNetwork/QNetworkRequest>
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebView>
@@ -97,30 +96,45 @@ int main(int argc, char **argv)
         }
     }
 
-    // Initiate the message box:
-    QWebViewWindow window;
+    // Message box icon:
+    QString externalIconFilePath =
+            application.applicationDirPath() +
+            QDir::separator() + "htmlmsg.png";
+    QFile iconFile(externalIconFilePath);
+    QPixmap icon(32, 32);
 
-    // External HTML message template:
+    if (iconFile.exists()) {
+        // Set the external icon:
+        icon.load(externalIconFilePath);
+        QApplication::setWindowIcon(icon);
+    } else {
+        // Set the embedded icon:
+        icon.load(":/htmlmsg.png");
+        QApplication::setWindowIcon(icon);
+    }
+
+    // HTML message template:
     QString externalHtmlFilePath =
             application.applicationDirPath() +
             QDir::separator() + "htmlmsg.html";
-
     QFile externalHtmlFile(externalHtmlFilePath);
+    QString htmlContent;
+
     if (externalHtmlFile.exists()) {
         // Load the external HTML message template:
         QFileReader *resourceReader =
                 new QFileReader(externalHtmlFilePath);
-        QString htmlContent = resourceReader->fileContents;
-
-        window.mainPage->mainFrame()->setHtml(htmlContent);
+        htmlContent = resourceReader->fileContents;
     } else {
         // Load the embedded HTML message template:
         QFileReader *resourceReader =
                 new QFileReader(QString(":/htmlmsg.html"));
-        QString htmlContent = resourceReader->fileContents;
-
-        window.mainPage->mainFrame()->setHtml(htmlContent);
+        htmlContent = resourceReader->fileContents;
     }
+
+    // Initiate the message box and load the HTML message:
+    QWebViewWindow window;
+    window.mainPage->mainFrame()->setHtml(htmlContent);
 
     // Read any initial STDIN data:
     if (isatty(fileno(stdin))) {
@@ -187,10 +201,9 @@ QPage::QPage()
     QWebSettings::globalSettings()->
             setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
 
-    QWebSettings::setMaximumPagesInCache (0);
-    QWebSettings::setObjectCacheCapacities (0, 0, 0);
-    QWebSettings::setMaximumPagesInCache (0);
-    QWebSettings::clearMemoryCaches();
+    // Disable cache:
+    QWebSettings::setMaximumPagesInCache(0);
+    QWebSettings::setObjectCacheCapacities(0, 0, 0);
 }
 
 // ==============================
@@ -213,31 +226,10 @@ QWebViewWindow::QWebViewWindow()
     // Disable context menu:
     setContextMenuPolicy(Qt::NoContextMenu);
 
+    // The message box is always on top of all other windows:
     setWindowFlags(Qt::WindowStaysOnTopHint);
 
-    // Set an empty transparent icon:
-    QPixmap pix(16, 16);
-    pix.fill(Qt::transparent);
-    setWindowIcon(QIcon(pix));
-
-    // Signal and slot for changing the window title:
+    // Signal and slot for setting the HTML title as the window title:
     QObject::connect(mainPage, SIGNAL(loadFinished(bool)),
                      this, SLOT(qChangeTitleSlot()));
-}
-
-bool QPage::acceptNavigationRequest(QWebFrame *frame,
-                                    const QNetworkRequest &request,
-                                    QWebPage::NavigationType navigationType)
-{
-    Q_UNUSED(frame);
-
-    if (navigationType == QWebPage::NavigationTypeLinkClicked) {
-        if (request.url().scheme() == "close") {
-            QApplication::exit();
-        } else {
-            QDesktopServices::openUrl (request.url());
-        }
-    }
-
-    return false;
 }
