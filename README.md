@@ -4,8 +4,7 @@ HTML Message Box
 [![GitHub Version](https://img.shields.io/github/release/ddmitov/html-messagebox.svg)](https://github.com/ddmitov/html-messagebox/releases)
 [![GitHub License](http://img.shields.io/badge/License-LGPL%20v3-blue.svg)](./LICENSE.md)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/11340/badge.svg)](https://scan.coverity.com/projects/ddmitov-html-messagebox)
-[![Build Status](https://travis-ci.org/ddmitov/html-messagebox.svg?branch=master)](https://travis-ci.org/ddmitov/html-messagebox)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/ddmitov/html-messagebox?branch=master&svg=true)](https://ci.appveyor.com/project/ddmitov/html-messagebox)  
+[![Build Status](https://travis-ci.org/ddmitov/html-messagebox.svg?branch=master)](https://travis-ci.org/ddmitov/html-messagebox)  
 
 HTML Message Box is a small Qt 5 program with only one purpose:  
 to show nice HTML message boxes from command line scripts.  
