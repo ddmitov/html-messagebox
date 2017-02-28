@@ -116,17 +116,22 @@ int main(int argc, char **argv)
     }
 
     // HTML message template:
-    QString externalHtmlFilePath =
-            application.applicationDirPath() +
-            QDir::separator() + "htmlmsg.html";
-    QFile externalHtmlFile(externalHtmlFilePath);
+    QString htmlFolder =
+            application.applicationDirPath() + QDir::separator() + "msgbox";
+    QString htmlFilePath =
+            htmlFolder + QDir::separator() + "htmlmsg.html";
+    QFile htmlFile(htmlFilePath);
     QString htmlContent;
 
-    if (externalHtmlFile.exists()) {
+    if (htmlFile.exists()) {
         // Load the external HTML message template:
         QFileReader *resourceReader =
-                new QFileReader(externalHtmlFilePath);
+                new QFileReader(htmlFilePath);
         htmlContent = resourceReader->fileContents;
+
+        htmlContent.replace("local://",
+                            QString(
+                                "file://" + htmlFolder + QDir::separator()));
     } else {
         // Load the embedded HTML message template:
         QFileReader *resourceReader =
@@ -150,6 +155,9 @@ int main(int argc, char **argv)
                        screenRect.width()/2 - windowWidth/2,
                        screenRect.height()/2 - windowHeigth/2));
 
+    // Display the message box:
+    window.show();
+
     // Set the message box timeout:
     if (timeoutSeconds > 0) {
         int timeoutMilliseconds = timeoutSeconds * 1000;
@@ -165,8 +173,6 @@ int main(int argc, char **argv)
                      &window, SLOT(qReadStdin()));
     stdinNotifier->setEnabled(true);
 
-    // Display the message box:
-    window.show();
     application.exec();
 }
 
@@ -201,7 +207,12 @@ QPage::QPage()
     QWebSettings::globalSettings()->
             setAttribute(QWebSettings::JavascriptEnabled, true);
     QWebSettings::globalSettings()->
+            setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
+    QWebSettings::globalSettings()->
             setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
+
+    // All links are handled by the application itself:
+    setLinkDelegationPolicy(QWebPage::DontDelegateLinks);
 
     // Disable cache:
     QWebSettings::setMaximumPagesInCache(0);
