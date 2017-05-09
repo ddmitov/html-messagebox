@@ -171,7 +171,10 @@ int main(int argc, char **argv)
             new QSocketNotifier(fileno(stdin), QSocketNotifier::Read);
     QObject::connect(stdinNotifier, SIGNAL(activated(int)),
                      &window, SLOT(qReadStdin()));
-    stdinNotifier->setEnabled(true);
+
+    if (isatty(fileno(stdin))) {
+        stdinNotifier->setEnabled(true);
+    }
 
     application.exec();
 }
@@ -200,16 +203,14 @@ QPage::QPage()
     QWebSettings::globalSettings()->setDefaultTextEncoding(QString("utf-8"));
 
     QWebSettings::globalSettings()->
+            setAttribute(QWebSettings::JavascriptEnabled, false);
+    QWebSettings::globalSettings()->
+            setAttribute(QWebSettings::LocalContentCanAccessFileUrls, false);
+    QWebSettings::globalSettings()->
             setAttribute(QWebSettings::PluginsEnabled, false);
 
     QWebSettings::globalSettings()->
             setAttribute(QWebSettings::AutoLoadImages, true);
-    QWebSettings::globalSettings()->
-            setAttribute(QWebSettings::JavascriptEnabled, true);
-    QWebSettings::globalSettings()->
-            setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
-    QWebSettings::globalSettings()->
-            setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
 
     // All links are handled by the application itself:
     setLinkDelegationPolicy(QWebPage::DontDelegateLinks);

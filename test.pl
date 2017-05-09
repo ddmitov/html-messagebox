@@ -2,8 +2,9 @@
 
 use strict;
 use warnings;
-use AnyEvent;
 use POSIX qw(strftime);
+
+use AnyEvent;
 
 my $TIMEOUT = 10;
 
